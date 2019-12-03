@@ -1,3 +1,3 @@
-# 2730_proj
+# smash_ai
 
-git gud
+Takes in matchup data and places matchups in +2, +1, 0, -1, -2 categories.
