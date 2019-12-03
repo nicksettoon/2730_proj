@@ -1,4 +1,4 @@
-Character,max_air_acceleration,air_speed,fall_speed,gravity,full_jump_height,weight,walk_speed,init_dash,run_speed,fastest_OOS_option,grab_speed
+char,max_air_acceleration,air_speed,fall_speed,gravity,full_jump_height,weight,walk_speed,init_dash,run_speed,fastest_OOS_option,grab_speed
 Banjo,0.07,0.92,1.76,0.11,44,106,1.06,1.68,2.18,9,7
 Bayonetta,0.095,1.019,1.77,0.12,39,81,0.945,1.936,1.76,6,7
 Bowser,0.05,1.155,1.77,0.125,33,135,0.901,2.255,1.971,6,8
