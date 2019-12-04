@@ -75,23 +75,30 @@ class SelectTournament(ListMenu):
 
 class QueryTournament(FunctionMenu):
     #class for menu of options related to a specific Tournament
-    def __init__(self, prompt_in):
-        self.prompt = prompt_in
+    def __init__(self, tournament_name):
+        self.prompt = tournament_name
         self.optionlist = ["Print non-zero matchups", "Edit matchups", "Print all matchups."] #set options visible to user
         self.functionlist = [self.printTopMus, self.editMus, self.printAllMus] #set list of functions those options map to
-        super().__init__(prompt_in)
+        self.tournament = T(tournament_name)
+        self.openTournament()
+
+        super().__init__(tournament_name)
         
+    def openTournament(self):
+        self.tournament.loadDF()
+
     def printTopMus(self):
         print("hit printTopMus")
-        return True
+        return False
 
     def editMus(self):
         print("hit editMus")
-        return True
+        return False
 
     def printAllMus(self):
         print("hit printAllMus")
-        return True
+        self.tournament.printDF()
+        return False
 
 
 def main():
