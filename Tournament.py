@@ -8,13 +8,6 @@ class Tournament():
     #class that holds tournament matchup result self.data
     def __init__(self, name):
         self.name = name
-        
-        try:
-            self.loadDF()
-            print(f"Found csv for {self.name}.")
-        except FileNotFoundError:
-            print("No tournament was found with that name. Making new one.")
-            self.makeDF()
 
     def makeDF(self):
         #init matchup array
@@ -27,16 +20,23 @@ class Tournament():
         self.df = pd.DataFrame(self.mudata, columns=["char1", "char2", "char1_wins", "char2_wins"])
         self.df["total_games"] = self.df["char1_wins"] + self.df["char2_wins"]
 
-        #make stream object for writing to file
-        # with open(f"{name}.csv", 'w') as csvfile:
-            # self.outstream = csv.writer(csvfile)
-    
     def printDF(self):
         print(self.name)
         print(self.df)
     
     def saveDF(self):
-        export_csv = self.df.to_csv(f"{self.name}.csv", index=False)
+        export_csv = self.df.to_csv(f"./tournaments/{self.name}.tmnt", index=False)
     
     def loadDF(self):
-        self.df = pd.read_csv(f"{self.name}.csv")
+        try:
+            self.df = pd.read_csv(f"./tournaments/{self.name}.tmnt")
+            print(f"Found csv for {self.name}.")
+            return True
+        except FileNotFoundError:
+            # print("No tournament was found with that name. Making new one.")
+            # print("You should never have issues finding a tournament.")
+            # print("Something went wrong with SelectTournament().")
+            return False
+    
+    def editDF(self):
+        print("hit editDF")

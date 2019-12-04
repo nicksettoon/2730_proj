@@ -1,42 +1,138 @@
 import pandas as pd
 
-class Menu():
-    def __init__(self, prompt_string, option_list, function_list):
-        self.prompt = prompt_string 
-        self.optionlist = option_list
-        self.functionlist = function_list
-        self.makeMenu()
-    
-    def makeMenu(self):
-        options = pd.Series(self.optionlist)
-        functions = pd.Series(self.functionlist)
-        menudict = {
-            "options":options,
-            "functions":functions
-        }
-        self.menu = pd.DataFrame(menudict)
+class Printable():
+    #base class containing print function 
+    def printList(self, list_in):
+        print("\t")
+        for i, option in enumerate(list_in):
+            print(f"{i+1}. {option}")
+
+class Menu(Printable):
+    #base class for basic menu creation and printing
+    def __init__(self, prompt_in, menu_dict):
+        #sets up prompt string and creates the menu dataframe
+        self.prompt = prompt_in+">"
+        self.menudict = menu_dict 
+        self.menutype = ""
+        self.menu = pd.DataFrame(self.menudict)
         self.menu.index += 1
 
     def printMenu(self):
-        for i, option in enumerate(self.menu.iloc[0:, 0]):
-            print(f"{i+1}. {option}")
+        #prints the current menu
+        self.printList(self.optionlist)
 
-    def getMethod(self, argument):
-        try:
-            method = self.menu['functions'][argument]
-            return method
-        except:
-            print(f"{argument} is not a valid option. Please pick a valid option.")
-            return None
+    def printLoop(self, orig_end, print_menu):
+        #input validation loop making sure the user's input is an integer or "list", "back", "quit"
+        selected = None
+        endstring = orig_end + "\nType 'list' to print the list again."
+
+        while(selected == None):
+            if print_menu:
+                # print("\n")
+                self.printMenu()
+                print_menu = False
+
+            print(endstring)
+            selected = input(self.prompt)
+
+            if selected == "list":
+                print_menu = True
+                endstring = "Type 'list' to print the list again."
+                endstring = endstring + "Type 'quit' to quit."
+                selected = None
+            elif selected == "quit":
+                break
+            elif selected == "back":
+                break
+            else:
+                try:
+                    selected = int(selected)
+                except ValueError:
+                    endstring = "Invalid input. Please input a number or type 'list' to print the options again."
+                    selected = None
+        return selected
+
+    def getValidSelection(self):
+        #input validation loop making sure a given integer selection is in the list of options for the menu instance
+        #runs until user picks an option, then returns
+        selection = None
+        endstring = "Please enter a number from the list."
+        printmenu = True
+        while(selection == None):
+            selection = self.printLoop(endstring, printmenu)
+            if selection == "quit" or selection == "back":
+                print("hit valid selection block")
+                break
+            try:
+                item = self.getItem(selection)
+                selection = item
+            except:
+                endstring = f"\n{selection} is not an option. Please pick a valid option."
+                printmenu = False
+                selection = None
+        return selection
+
+    def getItem(self, selection):
+        #virtual function indended to be overwritten by inheriting functions
+        return self.menu[self.menutype][selection]
 
     def promptLoop(self):
-        method = None
-        while(method == None):
-            self.printMenu()
-            inpt = input(self.prompt)
+        #runs getValidSelection until user selects, backs out, or quits program
+        selection = None
+        while(selection == None):
+            selection = self.getValidSelection()
+            print(f"selection: {selection}")
+            if selection == "quit": #if user wants to quit, return True to fall through all parent while loops
+                selection = True
+        return selection
+
+class ListMenu(Menu):
+    #class for selecting from a list of items
+    def __init__(self, prompt_in):
+        # print("made it to listmenu creation")
+        menudict = {
+            "options":self.optionlist
+        }
+        super().__init__(prompt_in, menudict)
+        self.menutype = "options"
+
+    def startPrompt(self):
+        #runs prompt for functions until back is returned
+        exitcode = False
+        while(exitcode != True):
+            exitcode = self.promptLoop() #find function to execute and try to execute it
+            if exitcode == "back": #if recieved "back" in the promptLoop
+                exitcode = False
+                break #just break out of this loop and end startPrompt call
+            else:
+                break
+
+        print(f"exitcode: {exitcode}")
+        return exitcode
+
+class FunctionMenu(Menu):
+    #class for selecting from a list of functions
+    # def __init__(self, prompt_in, option_list, function_list):
+    def __init__(self, prompt_in):
+        # self.optionlist = option_list
+        # self.functionlist = function_list
+        menudict = {
+            "options":self.optionlist,
+            "functions":self.functionlist
+        }
+        super().__init__(prompt_in, menudict)
+        self.menutype = "functions" 
+
+    def startPrompt(self):
+        #runs prompt for functions until back is returned
+        exitcode = False
+        while(exitcode != True):
             try:
-                method = self.getMethod(int(inpt))
-            except ValueError:
-                print("Invalid input. Please input a number.")
-                method = None
-        return method
+                exitcode = self.promptLoop() #find function to execute and try to execute it
+                exitcode = exitcode()
+            except: #if hit this, that means we recieved "quit", or "back"
+                if exitcode == "back": #if recieved "back" in the promptLoop
+                    exitcode = False
+                    break #just break out of this loop and end startPrompt call
+        print(f"exitcode: {exitcode}")
+        return exitcode
