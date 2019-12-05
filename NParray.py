@@ -8,9 +8,11 @@ class NParray():
     
     def addCol(array_in, num_to_add):
         zeroes = np.zeros_like(array_in)
+        print(zeroes.astype(str))
         arrayout = array_in
         i = 1
         while(i <= num_to_add):
             arrayout = np.append(arrayout, zeroes, axis=1)
             i += 1
+        print(f"addCol result: {arrayout}")
         return arrayout

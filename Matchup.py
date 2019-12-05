@@ -40,4 +40,4 @@ class MatchupStats():
                     # print(f"{i}.\t{mu}") print if need be
                     matchups.append(mu)
 
-        self.muarray = np.array(matchups) #make the matchups an np array
+        self.muarray = matchups #make the matchups an np array

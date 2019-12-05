@@ -1,9 +1,13 @@
 import pandas as pd
+import os
 
 class MenuBase():
     #base class for menus 
     def __init__(self, string_in):
         self.prompt = string_in
+
+    def clearTerm(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     def printList(self, list_in):
         print("\t")
@@ -18,7 +22,7 @@ class MenuBase():
             except:
                 print("Invalid input.")
                 usrinput = None
-
+        return usrinput
 
 
 class Menu(MenuBase):
@@ -28,6 +32,7 @@ class Menu(MenuBase):
         self.prompt = prompt_in+">"
         self.menudict = menu_dict 
         self.menutype = ""
+        self.printmenu = True
         self.menu = pd.DataFrame(self.menudict)
         self.menu.index += 1
 
@@ -35,22 +40,22 @@ class Menu(MenuBase):
         #prints the current menu
         self.printList(self.optionlist)
 
-    def printLoop(self, orig_end, print_menu=True):
+    def printLoop(self, orig_end):
         #input validation loop making sure the user's input is an integer or "list", "back", "quit"
         selected = None
         endstring = orig_end + "\nType 'list' to print the list again."
 
         while(selected == None):
-            if print_menu:
+            if self.printmenu:
                 # print("\n")
                 self.printMenu()
-                print_menu = False
+                self.printmenu = False
 
             print(endstring)
             selected = input(self.prompt)
 
             if selected == "list":
-                print_menu = True
+                self.printmenu = True
                 endstring = "Type 'list' to print the list again."
                 endstring = endstring + "Type 'quit' to quit."
                 selected = None
@@ -66,22 +71,22 @@ class Menu(MenuBase):
                     selected = None
         return selected
 
-    def getValidSelection(self, string_in, print_menu=True):
+    def getValidSelection(self, string_in):
         #input validation loop making sure a given integer selection is in the list of options for the menu instance
         #runs until user picks an option, then returnthreshold
         selection = None
         endstring = string_in + "\nPlease enter a number from the list."
         while(selection == None):
-            selection = self.printLoop(endstring, print_menu)
+            selection = self.printLoop(endstring)
             if selection == "quit" or selection == "back":
-                print("hit valid selection block")
+                # print("hit valid selection block")
                 break
             try:
                 item = self.getItem(selection)
                 selection = item
             except:
                 endstring = f"\n{selection} is not an option. Please pick a valid option."
-                print_menu = False
+                self.printmenu = False
                 selection = None
         return selection
 
@@ -89,11 +94,11 @@ class Menu(MenuBase):
         #virtual function indended to be overwritten by inheriting functions
         return self.menu[self.menutype][selection]
 
-    def promptLoop(self, string_in, print_menu=True):
+    def promptLoop(self, string_in):
         #runs getValidSelection until user selects, backs out, or quits program
         selection = None
         while(selection == None):
-            selection = self.getValidSelection(string_in, print_menu)
+            selection = self.getValidSelection(string_in)
             if selection == "quit": #if user wants to quit, return True to fall through all parent while loops
                 selection = True
         return selection
@@ -108,11 +113,11 @@ class ListMenu(Menu):
         super().__init__(prompt_in, menudict)
         self.menutype = "options"
 
-    def startPrompt(self, string_in, print_menu=True):
+    def startPrompt(self, string_in):
         #runs prompt for functions until back is returned
         exitcode = False
         while(exitcode != True):
-            exitcode = self.promptLoop(string_in, print_menu) #find function to execute and try to execute it
+            exitcode = self.promptLoop(string_in) #find function to execute and try to execute it
             if exitcode == "back": #if recieved "back" in the promptLoop
                 exitcode = False
                 break #just break out of this loop and end startPrompt call
@@ -134,16 +139,17 @@ class FunctionMenu(Menu):
         super().__init__(prompt_in, menudict)
         self.menutype = "functions" 
 
-    def startPrompt(self, string_in, print_menu=True):
+    def startPrompt(self, string_in):
         #runs prompt for functions until back is returned
         exitcode = False
         while(exitcode != True):
             try:
-                exitcode = self.promptLoop(string_in, print_menu) #find function to execute and try to execute it
+                exitcode = self.promptLoop(string_in) #find function to execute and try to execute it
                 exitcode = exitcode()
             except: #if hit this, that means we recieved "quit", or "back"
                 if exitcode == "back": #if recieved "back" in the promptLoop
                     exitcode = False
+                    self.printmenu = True
                     break #just break out of this loop and end startPrompt call
         # print(f"exitcode: {exitcode}")
         return exitcode
