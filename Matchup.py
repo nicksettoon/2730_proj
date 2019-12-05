@@ -1,39 +1,37 @@
 import numpy as np
 
-class Matchup():
+class MatchupStats():
     #basic class for holding matchup creation methods and arrays
-    def __init__(self, char_stats):
-        self.importStats(char_stats)
-        self.makeMatchups(self.characters)
+    def __init__(self, file_name):
+        self.filename = file_name
+        # self.loadStats(file_name)
+        # self.makeMatchups()
 
-    def importStats(self, csv_in):
+    def loadStats(self):
         #takes in str of the name of a csv file with character stats in it
-        self.data = np.loadtxt(csv_in, delimiter=',', dtype='str')    
+        self.data = np.loadtxt(self.filename, delimiter=',', dtype='str')    
 
         #get headers array
         self.headers = self.data[0,:].copy()
-
         #make characters array  
-        characters = self.data[1:,0].copy()
-        self.characters = np.expand_dims(characters, axis=1)
-
+        self.characters = self.data[1:,0].copy()
+        self.characters = np.expand_dims(self.characters, axis=1)
         #get stats matrix
-        stats = self.data[1:,1:].copy()
-        self.stats = stats.astype(float)
+        self.stats = self.data[1:,1:].copy().astype(float)
 
-    def makeMatchups(self, chars):
+    def makeMatchups(self):
         #takes in np array containing list of characters and returns new array with all viable unique 1v1 matchups for those characters
 
-        charchecklist = np.zeros_like(chars) #make column of zeros
-        chars = np.append(chars, charchecklist, axis = 1) #attach col to chars array   
+        charchecklist = np.zeros_like(self.characters) #make column of zeros
+        self.characters = np.append(self.characters, charchecklist, axis = 1) #attach col to self.characters array   
 
         matchups = [] #make new matchups array
 
-        for char in chars:
+        for char in self.characters:
             # print(char)
             # i = 0 #iteration tracker
             char[1] = "1" #mark the character as 'visited'
-            for opponent in chars:
+            for opponent in self.characters:
                 if opponent[1] == "1": #if the opponent's mu list has already been added to the dict, pass.
                     pass
                 else:
@@ -42,4 +40,4 @@ class Matchup():
                     # print(f"{i}.\t{mu}") print if need be
                     matchups.append(mu)
 
-        self.matchups = np.array(matchups) #make the matchups an np array
+        self.muarray = np.array(matchups) #make the matchups an np array
