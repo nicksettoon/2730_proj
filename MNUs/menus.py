@@ -10,15 +10,6 @@ class BaseMenu():
     def __init__(self, string_in):
         self.prompt = string_in + ">" #set prompt
         #decide if quick codes should be used or not based on terminal height
-        self.termshape = self.getTermSize()
-        if len(self.optionslist) > self.termshape[1]//5: #if so
-            self.menudict["index"] = self.genQuickCodes()
-            self.strflag = True
-            self.style = "grid"
-        else:
-            self.menudict["index"] = []
-            self.strflag = False
-            self.style = "fancy_grid"
         #set up help menu helpmenu
         self.helpmenu = {
             "list":['Reprints menu.','list','ll','ls','l'],
@@ -86,6 +77,15 @@ class Menu(BaseMenu):
         #sets up prompt string and creates the menu dataframe
         super().__init__(self.prompt)
         self.printmenu = True #instance variable to toggle printing of the menu options
+        self.termshape = self.getTermSize()
+        if len(self.optionslist) > self.termshape[1]//5: #if so
+            self.menudict["index"] = self.genQuickCodes()
+            self.strflag = True
+            self.style = "grid"
+        else:
+            self.menudict["index"] = []
+            self.strflag = False
+            self.style = "fancy_grid"
         #create menu data frame
         mindex = self.menudict.pop("index", None)
         if mindex == []:
