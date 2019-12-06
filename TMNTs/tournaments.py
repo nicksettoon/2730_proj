@@ -67,7 +67,7 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
     
     def selectMu(self):
         #creates mu object and editMatchup menu instance, then hands off to its prompt
-        # print("hit selectMu")
+        # #print("hit selectMu")
         self.matchup = self.getMuObj([])
         if self.matchup == False:
             return False        
@@ -75,27 +75,27 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
         return editMu.startPrompt("") #start prompt
     
     def printMu(self):
-        # print("Hit printMu")
+        # #print("hit printMu")
         self.matchup = self.getMuObj([])
         self.printMuObj("Matchup:")
 
         return False
 
     def printTmnt(self):
-        # print("hit printTmnt")
+        # #print("hit printTmnt")
         self.tmnt.printDF()
 
         return False
 
     def printNonZeroMus(self):
-        print("hit printNonZeroMus")
+        #print("hit printNonZeroMus")
         mus = self.tmnt.df[(self.tmnt.df['total_games'] > 0)]
         print(mus)
 
         return False
     
     def printThreshMus(self):
-        print("hit printThreshMus")
+        #print("hit printThreshMus")
         basic = mnus.BaseMenu("\nPlease enter threshold integer.")
         thresh = basic.basicIntLoop()
         mus = self.tmnt.df[(self.tmnt.df['total_games'] > thresh)]
@@ -141,14 +141,14 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
 
     def exitFunc(self):
         #saves the dataframe before exiting
-        print("Hit tmnt exitFunc")
+        #print("hit tmnt exitFunc")
         print("Saving/Updating Dataframe.")
         self.tmnt.saveDF()
 
     def returnFunc(self):
         #clears all previous settings and saves the dataframe
         # self.clearTerm()
-        print("Hit tmnt returnFunc")
+        #print("hit tmnt returnFunc")
         self.matchup = None
         print("Saving/Updating Dataframe.")
         self.tmnt.saveDF()

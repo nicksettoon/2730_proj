@@ -51,7 +51,7 @@ class StartMenu(mnus.FuncMenu):
         super().__init__()
 
     def startEditTmntMenu(self):
-        # print("Hit startEditTmntMenu")
+        # #print("hit startEditTmntMenu")
         tmntMenu = tmnt.SelTmntMenu(self.prompt) #create tournament selection prompt
         selection = tmntMenu.startPrompt("Please select a tournament.")# get the user's selection
 
@@ -86,19 +86,20 @@ class StartMenu(mnus.FuncMenu):
         return False
     
     def editGlobalMUs(self):
-        print("Hit editGlobalMUs")
+        #print("hit editGlobalMUs")
         return True
 
     def startGlobalMuMenu(self):
-        print("Hit startGlobalMuMenu")
+        #print("hit startGlobalMuMenu")
         return True
 
     def exitFunc(self):
-        print("Hit startmenu exitFunc")
+        #print("hit startmenu exitFunc")
+        pass
 
     def returnFunc(self):
         # self.clearTerm()
-        print("Hit startmenu returnFunc")
+        #print("hit startmenu returnFunc")
         self.printMenu()
 
 if __name__ == "__main__": main()

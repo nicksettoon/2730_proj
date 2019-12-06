@@ -21,7 +21,7 @@ class MuFuncs():
     def printMuObj(self, prefix_in):
         self.clearTerm()
         #clears all previous settings and saves the dataframe
-        print("Hit Mu returnFunc")
+        # #print("hit Mu returnFunc")
         # self.matchup = None
         # self.tmnt.saveDF()
         print(f"{prefix_in}{self.matchup['mu']}\n")
@@ -92,7 +92,7 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
         self.printMu()
     
     def addWins(self):
-        # print("hit addWins")
+        # #print("hit addWins")
         mu = self.matchup #alias for quicker use
         #get user input
         prompt = f"New {mu['df'].columns[0]}"
@@ -111,13 +111,13 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
         return False
 
     def printMu(self):
-        # print("Hit printMu")
+        # #print("hit printMu")
         self.printMuObj("Matchup: ")
 
         return False
 
     def editWins(self):
-        print("hit editWins")
+        #print("hit editWins")
         mu = self.matchup #alias for quick use
         #get user input
         basic = mnus.BaseMenu(f"Set {mu['df'].columns[0]} to")
@@ -135,11 +135,13 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
         return False
 
     def exitFunc(self):
-        print("Hit Mu exitFunc")
+        #print("hit Mu exitFunc")
+        pass
 
     def returnFunc(self):
-        print("Hit Mu returnFunc")
+        #print("hit Mu returnFunc")
         # self.clearTerm()
+        pass
 
 
 """------LIST MENUS-----------------------------------------------------"""
