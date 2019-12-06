@@ -12,13 +12,15 @@ def normalizeStatFunc(stat_challenger, stat_opponent):
 class SelCharMenu(mnus.ListMenu):
     #class for listing and selecting characters
     def __init__(self, prompt_in):
-        self.codeflag = True
+        self.strflag = True
         self.prompt = prompt_in
         muloader = mus.MuStats("./CHARs/char_stats.csv")
         muloader.loadMuStats()
 
-        self.optionslist = muloader.characters.ravel()
+        self.optionslist = muloader.characters.ravel().tolist()
+        # self.optionslist = np.concatenate(self.optionslist, self.genCharCodes())
         self.optionslist.append(self.genCharCodes())
+        print(self.optionslist)
         super().__init__()
     
     def genCharCodes(self):

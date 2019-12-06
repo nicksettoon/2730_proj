@@ -1,7 +1,7 @@
 #EXTERNAL IMPORTS#
 import numpy as np
 import pandas as pd
-# import csv
+import os
 
 #CUSTOM IMPORTS#
 from MNUs import menus as mnus
@@ -36,15 +36,15 @@ class StartMenu(mnus.FuncMenu):
     def __init__(self):
         print("Welcome to the Smash Ultimate Tournament Data Builder!")
         self.prompt = "SHOW ME YOUR MUs"
-        # self.strflag = False
-        # self.optionslist = []
-        # self.functionslist = []
+        self.strflag = False
         self.menudict = {
             "Open a tournament.":self.startEditTmntMenu,
             "Make a tournament.":self.startMakeTmntMenu,
+            "Rename tournament.":self.renameTmnt,
+            "Copy tournament.":self.copyTmnt,
             "Edit global matchups.(dummy func)":self.editGlobalMUs,
             "Search global matchups.(dummy func)":self.queryGlobalMUs,
-            "index":None,
+            "index":[],
         }
 
         super().__init__()
@@ -66,6 +66,24 @@ class StartMenu(mnus.FuncMenu):
         makeTmnt = tmnt.MakeTmntMenu()
         return makeTmnt.startPrompt("Please input a number.")
 
+    def renameTmnt(self):
+        selTmnt = tmnt.SelTmntMenu(self.prompt[:-1])
+        choice = selTmnt.startPrompt("Please select a tournament to rename.")
+        os.system(f"rename ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt" if os.name == 'nt' else f"mv ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt")
+        selTmnt.printMenu()
+        print(f"{choice} renamed.")
+
+        return False
+
+    def copyTmnt(self):
+        selTmnt = tmnt.SelTmntMenu(self.prompt[:-1])
+        choice = selTmnt.startPrompt("Please select a tournament to copy.")
+        os.system(f"copy ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt" if os.name == 'nt' else f"cp ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt")
+        selTmnt.printMenu()
+        print(f"{choice} copied.")
+
+        return False
+    
     def editGlobalMUs(self):
         print("Hit editGlobalMUs")
         return True
@@ -78,8 +96,9 @@ class StartMenu(mnus.FuncMenu):
         print("Hit startmenu exitFunc")
 
     def returnFunc(self):
-        self.clearTerm()
+        # self.clearTerm()
         print("Hit startmenu returnFunc")
+        self.printMenu()
 
 if __name__ == "__main__": main()
 else: print("What you doin' willis.")

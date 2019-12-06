@@ -9,7 +9,7 @@ class BaseMenu():
     #base class for menus 
     def __init__(self, string_in):
         self.prompt = string_in + ">"
-        self.strflag = False #decendant class will set this to true if its indexes are strings
+        # self.strflag = False #decendant class will set this to true if its indexes are strings
 
     def clearTerm(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -37,68 +37,49 @@ class Menu(BaseMenu):
         # self.prompt = self.prompt+">" #sets prompt for this menu
         self.printmenu = True #instance variable to toggle printing of the menu options
         #create menu data frame
-        index = self.menudict.pop("index", None)
-        self.menuframe = pd.DataFrame(self.menudict)
-        print(self.menuframe.index.values)
-        if index != None:
-            self.menuframe.index = index
+        mindex = self.menudict.pop("index", None)
+        if mindex == []:
+            self.menuframe = pd.DataFrame(self.menudict)
+        else:
+            self.menuframe = pd.DataFrame(self.menudict, index=mindex)
         if not self.strflag:
             self.menuframe.index += 1
-            print(self.menuframe.index.values)
+            # print(self.menuframe.index.values)
 
         #clear terminal
         self.clearTerm()
 
     def printMenu(self):
         # prints the current menu
-        if True:
-            df = pd.DataFrame(self.optionslist)
-            print()
-            if df.index.values[0] == 0:
-                df.index += 1
-            print(tabulate(df, tablefmt="psql"))
-        else:
-            pass
-        # listsize = len(self.optionlist)
-        # if listsize > 30: 
-        #     i = 2
-        #     while(divsize > 30):
-        #         divsize = listsize//i
-        #         i += 1 
-        #     arr = np.array_split(self.optionlist, i)
-        #     print(arr)
-        # else:
-        # # print(df)
-        # options = ["plain",
-        #         "simple",
-        #         "github",
-        #         "grid",
-        #         "fancy_grid",
-        #         "pipe",
-        #         "orgtbl",
-        #         "jira",
-        #         "presto",
-        #         "psql",
-        #         "rst",
-        #         "mediawiki",
-        #         "moinmoin",
-        #         "youtrack",
-        #         "html",
-        #         "latex",
-        #         "latex_raw",
-        #         "latex_booktabs",
-        #         "textile",
+        if len(self.menuframe.index.values) < 10:
+            print(tabulate(self.menuframe[['options']], showindex=True, tablefmt="psql"))
+            return
+        heads = self.menuframe.index.values # list of all options
+        sz = len(heads) #get length of all options
+        i = 1
+        divsize = sz
+        while(divsize > 10):
+            #keep dividing the lenth of options by a bigger number until you get below 10
+            divsize = sz//i 
+            i += 1 
+        heads = np.array_split(heads, i) #split heads into i groups which should yeild a size <=10
+        # options = [
+        #     "grid",
+        #     "fancy_grid",
+        #     "rst",
         # ]
         # for style in options:
-        #     print(style + "\n")
-        # self.printList(self.optionlist)
+        #     print(f"\n{style}\n")
+        for arr in heads: #print the transpose of the list with the elements in the arr grouping 
+            print(tabulate(self.menuframe[['options']].T[arr], headers=arr, tablefmt=self.style, showindex=False))
+        return
 
     def getValidMenuOption(self, string_in):
         #input validation loop making sure a given output is in the list of options for the menu instance
         #runs until user picks an option, then return
         output = None
-        helpmenu = "\nlist\tprints menu\nback\tgoes back one menu\nquit\tquits program\nhelp\tprints this list" 
-        endstring = string_in + helpmenu 
+        helpmenu = "\nlist\tprints menu\nback\tgoes back one menu\nquit\tquits program\nclear\tclears screen\nhelp\tprints this list" 
+        endstring = string_in + "\nType help for a list of commands."
 
         while(output == None):
             if self.printmenu:
@@ -115,6 +96,10 @@ class Menu(BaseMenu):
             elif inpt == "help":
                 endstring = helpmenu
                 output = None
+            elif inpt == "clear":
+                self.clearTerm()
+                endstring = string_in
+                output = None
             elif inpt == "quit":
                 output = True
                 break
@@ -126,8 +111,8 @@ class Menu(BaseMenu):
                 # print(self.menuframe)
                 try:
                     index = int(inpt)
-                    output = self.menuframe.iloc[index]
-                    output = output.loc[self.menutype]
+                    output = self.menuframe[self.menutype][index]
+                    # output = output.loc[self.menutype]
                     # print(type(output))
                 except ValueError:
                     try:
@@ -153,8 +138,8 @@ class ListMenu(Menu):
     #class for selecting from a list of items
     def __init__(self):
         self.menutype = "options" 
-        self.optionslist = []
         # build dataframe dictionary
+        self.style = "rst"
         self.menudict = {#build new dict in it's shoes
             "index":self.optionslist.pop(-1),
             "options":self.optionslist,
@@ -170,6 +155,8 @@ class ListMenu(Menu):
             exitcode = self.getValidMenuOption(end_string) #find function to execute and try to execute it
             if not exitcode: #if not False 
                 break #break out with exitcode == False so will just drop out of this prompt
+            else:
+                break
 
         return exitcode
 
@@ -187,6 +174,7 @@ class FuncMenu(Menu):
         self.menutype = "functions" 
         self.optionslist = []
         self.functionslist = []
+        self.style = "github"
         # build dataframe dictionary
         for key, value in self.menudict.items():
             #cycle through all items in dict that decendant set up

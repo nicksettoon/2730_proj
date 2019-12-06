@@ -12,15 +12,13 @@ from MUs import matchups as mus
 class MakeTmntMenu(mnus.FuncMenu):
     def __init__(self):
         #prompt for Tournament name
-        self.reMake()
+        self.tmnt = self.makeTmnt()
         self.strflag = False
         self.menudict = {
             "Print current tournament.":self.printTmnt,
             "Save tournament.":self.saveTmnt,
             "Start over.":self.reMake,
-            "Rename tournament.":self.renameTmnt,
-            "Copy tournament.":self.copyTmnt,
-            "index":None
+            "index":[],
         }
 
         super().__init__()
@@ -32,6 +30,7 @@ class MakeTmntMenu(mnus.FuncMenu):
 
     def reMake(self):
         self.tmnt = self.makeTmnt()
+        self.prompt = self.prompt + ">"
 
         return False
 
@@ -41,24 +40,10 @@ class MakeTmntMenu(mnus.FuncMenu):
 
         return False
         
-    def renameTmnt(self):
-        selTmnt = SelTmntMenu(self.prompt[:-1])
-        tmnt = selTmnt.startPrompt("Please select a tournament to rename.")
-        os.system(f"rename {tmnt}.tmnt {tmnt}-copy.tmnt" if os.name == 'nt' else f"mv {tmnt}.tmnt {tmnt}-copy.tmnt")
-
-        return False
-
-    def copyTmnt(self):
-        selTmnt = SelTmntMenu(self.prompt[:-1])
-        tmnt = selTmnt.startPrompt("Please select a tournament to copy.")
-        os.system(f"copy {tmnt}.tmnt {tmnt}-copy.tmnt" if os.name == 'nt' else f"cp {tmnt}.tmnt {tmnt}-copy.tmnt")
-
-        return False
-    
     def makeTmnt(self):
         self.newname = str(input("Tournament Name: "))
         t = Tmnt(self.newname)
-        self.prompt = newname + "(not saved)"
+        self.prompt = self.newname + "(not saved)"
         t.makeDF()
         return t
 
@@ -73,12 +58,12 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
             "Print tournament. (all matchups)":self.printTmnt,
             "Print non-zero matchups":self.printNonZeroMus,
             "Print matchups above threshold.":self.printThreshMus,
-            "index":None,
+            "index":[],
         }
         #make and load tournament 
         self.tmnt = Tmnt(tmnt_name)
         self.tmnt.loadDF()
-        super().__init__(tmnt_name) #make menu
+        super().__init__() #make menu
     
     def selectMu(self):
         #creates mu object and editMatchup menu instance, then hands off to its prompt
@@ -113,7 +98,8 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
         print("hit printThreshMus")
         basic = mnus.BaseMenu("\nPlease enter threshold integer.")
         thresh = basic.basicIntLoop()
-        print(self.tmnt.df['total_games'] > thresh)
+        mus = self.tmnt.df[(self.tmnt.df['total_games'] > thresh)]
+        print(mus)
 
         return False
 
@@ -161,7 +147,7 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
 
     def returnFunc(self):
         #clears all previous settings and saves the dataframe
-        self.clearTerm()
+        # self.clearTerm()
         print("Hit tmnt returnFunc")
         self.matchup = None
         print("Saving/Updating Dataframe.")
@@ -235,11 +221,13 @@ class Tmnt():
 class SelTmntMenu(mnus.ListMenu):
     def __init__(self, prompt_in):
         self.prompt = prompt_in
+        self.optionslist = []
+        self.strflag = False
         for root, dirs, files in os.walk('./'):
             for filename in files:
                 if filename.endswith('.tmnt'):
-                    self.optionlist.append(filename[:-5])
+                    self.optionslist.append(filename[:-5])
         # self.optionlist.append(np.arange(1,len(self.optionslist)+1))
-        self.optionlist.append(None)
+        self.optionslist.append(None)
 
         super().__init__()

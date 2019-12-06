@@ -89,20 +89,20 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
             "Add wins":self.addWins,
             "Print matchup.":self.printMu,
             "Edit wins.":self.editWins,
-            "index":None,
+            "index":[],
         }
 
-        super().__init__(self.prompt) #make menu
+        super().__init__() #make menu
         self.printMu()
     
     def addWins(self):
         # print("hit addWins")
         mu = self.matchup #alias for quicker use
         #get user input
-        prompt = f"New {mu['df'].columns[0]}: "
+        prompt = f"New {mu['df'].columns[0]}"
         basic = mnus.BaseMenu(prompt)
         c1add = basic.basicIntLoop()
-        basic.prompt = f"New {mu['df'].columns[1]}: "
+        basic.prompt = f"New {mu['df'].columns[1]}"
         c2add = basic.basicIntLoop()
         #add user input to existing values
         mu['row']['c1_wins'] += c1add
@@ -136,9 +136,9 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
         print("hit editWins")
         mu = self.matchup #alias for quick use
         #get user input
-        basic = mnus.BaseMenu(f"Set {mu['df'].columns[0]} to: ")
+        basic = mnus.BaseMenu(f"Set {mu['df'].columns[0]} to")
         c1wins = basic.basicIntLoop()
-        basic.prompt = f"Set {mu['df'].columns[1]} to: "
+        basic.prompt = f"Set {mu['df'].columns[1]} to"
         c2wins = basic.basicIntLoop()
         #set values to user input
         mu['row']['c1_wins'] = c1wins
@@ -155,7 +155,7 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
 
     def returnFunc(self):
         print("Hit Mu returnFunc")
-        self.clearTerm()
+        # self.clearTerm()
 
 
 """------LIST MENUS-----------------------------------------------------"""
