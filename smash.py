@@ -1,7 +1,8 @@
 #EXTERNAL IMPORTS#
 import numpy as np
 import pandas as pd
-# import csv
+import os
+# from tabulate import tabulate
 
 #CUSTOM IMPORTS#
 from MNUs import menus as mnus
@@ -10,7 +11,7 @@ from TMNTs import tournaments as tmnt
 
 def main():
     start = StartMenu()
-    start.startPrompt("")
+    start.startPrompt("Please input a number.")
 
     # MATCHUP EDIT TESTING #
     # editTmnt = tmnt.EditTmntMenu("test")
@@ -36,26 +37,18 @@ class StartMenu(mnus.FuncMenu):
     def __init__(self):
         print("Welcome to the Smash Ultimate Tournament Data Builder!")
         self.prompt = "SHOW ME YOUR MUs"
-        # self.menutype = "functions"
-        self.optionlist = [
-            "Open a tournament.",
-            "Make a tournament.",
-            "DONT USE ME YET.",
-            "DONT USE ME YET."
-        ]
+        self.strflag = False
+        self.menudict = {
+            "Open a tournament.":self.startEditTmntMenu,
+            "Make a tournament.":self.startMakeTmntMenu,
+            "Rename tournament.":self.renameTmnt,
+            "Copy tournament.":self.copyTmnt,
+            "Edit global matchups.(dummy func)":self.editGlobalMUs,
+            "Search global matchups.(dummy func)":self.queryGlobalMUs,
+            "index":[],
+        }
 
-        self.functionlist = [
-            self.startEditTmntMenu,
-            self.startMakeTmntMenu,
-            self.editGlobalMUs,
-            self.queryGlobalMUs
-        ]
-        super().__init__(self.prompt)
-
-    def startMakeTmntMenu(self):
-        # print("Hit startMakeTmntMenu")
-        makeTmnt = tmnt.MakeTmntMenu()
-        return makeTmnt.startPrompt("")
+        super().__init__()
 
     def startEditTmntMenu(self):
         # print("Hit startEditTmntMenu")
@@ -68,8 +61,30 @@ class StartMenu(mnus.FuncMenu):
             return False
         else:
             editTmnt = tmnt.EditTmntMenu(selection) #make menu for tournament
-            return editTmnt.startPrompt("")
+            return editTmnt.startPrompt("Please input a number.")
 
+    def startMakeTmntMenu(self):
+        makeTmnt = tmnt.MakeTmntMenu()
+        return makeTmnt.startPrompt("Please input a number.")
+
+    def renameTmnt(self):
+        selTmnt = tmnt.SelTmntMenu(self.prompt[:-1])
+        choice = selTmnt.startPrompt("Please select a tournament to rename.")
+        os.system(f"rename ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt" if os.name == 'nt' else f"mv ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt")
+        selTmnt.printMenu()
+        print(f"{choice} renamed.")
+
+        return False
+
+    def copyTmnt(self):
+        selTmnt = tmnt.SelTmntMenu(self.prompt[:-1])
+        choice = selTmnt.startPrompt("Please select a tournament to copy.")
+        os.system(f"copy ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt" if os.name == 'nt' else f"cp ./TMNTs/{choice}.tmnt ./TMNTs/{choice}-copy.tmnt")
+        selTmnt.printMenu()
+        print(f"{choice} copied.")
+
+        return False
+    
     def editGlobalMUs(self):
         print("Hit editGlobalMUs")
         return True
@@ -79,15 +94,12 @@ class StartMenu(mnus.FuncMenu):
         return True
 
     def exitFunc(self):
-        #saves the dataframe before exiting
         print("Hit startmenu exitFunc")
-        # self.tmnt.saveDF()
 
     def returnFunc(self):
-        #clears all previous settings and saves the dataframe
+        # self.clearTerm()
         print("Hit startmenu returnFunc")
-        # self.matchup = None
-        # self.tmnt.saveDF()
+        self.printMenu()
 
 if __name__ == "__main__": main()
 else: print("What you doin' willis.")

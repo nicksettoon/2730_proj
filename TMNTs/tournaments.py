@@ -1,104 +1,70 @@
 #EXTERNAL IMPORTS#
 import pandas as pd
 import numpy as np
-from os import walk
+import os 
 #CUSTOM IMPORTS#
 from MNUs import menus as mnus
 from CHARs import characters as chars
 from MUs import matchups as mus
 
+"""------FUNCTION MENUS-------------------------------------------------"""
+
 class MakeTmntMenu(mnus.FuncMenu):
     def __init__(self):
-        self.optionlist = [
-            "Print current tournament.",
-            "Restart(prompt issues)",
-            "Save tournament",
-            "Rename tournament.(dummy func)",
-            "Copy tournament.(dummy func)",
-        ]
-        self.functionlist = [
-            self.printTmnt,
-            self.reMake,
-            self.saveTmnt,
-            self.renameTmnt,
-            self.copyTmnt,
-        ]
-
+        #prompt for Tournament name
         self.tmnt = self.makeTmnt()
-        super().__init__(self.prompt)
+        self.strflag = False
+        self.menudict = {
+            "Print current tournament.":self.printTmnt,
+            "Save tournament.":self.saveTmnt,
+            "Start over.":self.reMake,
+            "index":[],
+        }
 
-    def makeTmnt(self):
-        print("Hit makeTmnt")
-        name = str(input("Tournament Name: "))
-        self.prompt = name + "(not saved)"
-        t = Tmnt(name)
-        t.makeDF()
-
-        return t
+        super().__init__()
 
     def printTmnt(self):
-        # print("Hit printTmnt")
         self.tmnt.printDF()
 
         return False
 
     def reMake(self):
-        # print("Hit reMake")
         self.tmnt = self.makeTmnt()
+        self.prompt = self.prompt + ">"
 
         return False
 
     def saveTmnt(self):
-        # print("Hit saveTmnt")
-        self.prompt = self.prompt[:-12] + ">"
+        self.prompt = self.newname + ">"
         self.tmnt.saveDF()
 
         return False
         
-    def renameTmnt(self):
-        print("hit renameTmnt")
-        return False
-
-    def copyTmnt(self):
-        print("Hit copyTmnt")
-        return False
-
+    def makeTmnt(self):
+        self.newname = str(input("Tournament Name: "))
+        t = Tmnt(self.newname)
+        self.prompt = self.newname + "(not saved)"
+        t.makeDF()
+        return t
 
 class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
     #class for menu of options related to a specific Tmnt
     def __init__(self, tmnt_name):
-        #menu setup
-        # self.autosave = True
-        # if self.autosave:
-        #     self.prompt = f"*{tmnt_name}"
-        # else:
         self.prompt = tmnt_name 
-        self.optionlist = [ #set options visible to user
-            "Print tournament. (all matchups)",
-            "Edit matchup",
-            "Print matchup",
-            "Print non-zero matchups",
-            "Print matchups above threshold.",
-            # "Toggle autosave. (On by default)"
-        ]
-        self.functionlist = [ #set list of functions those options map to
-            self.printTmnt,
-            self.selectMu,
-            self.printMu,
-            self.printNonZeroMus,
-            self.printThreshMus,
-            # self.toggleAutosave,
-        ]
+        self.strflag = False
+        self.menudict = {
+            "Edit matchup":self.selectMu,
+            "Print matchup":self.printMu,
+            "Print tournament. (all matchups)":self.printTmnt,
+            "Print non-zero matchups":self.printNonZeroMus,
+            "Print matchups above threshold.":self.printThreshMus,
+            "index":[],
+        }
         #make and load tournament 
         self.tmnt = Tmnt(tmnt_name)
         self.tmnt.loadDF()
-        super().__init__(tmnt_name) #make menu
+        super().__init__() #make menu
     
-    # def toggleAutosave(self):
-    #     # print("Hit toggleAutosave")
-    #     self.autosave = not self.autosave
-    #     return False
-
     def selectMu(self):
         #creates mu object and editMatchup menu instance, then hands off to its prompt
         # print("hit selectMu")
@@ -115,11 +81,33 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
 
         return False
 
+    def printTmnt(self):
+        # print("hit printTmnt")
+        self.tmnt.printDF()
+
+        return False
+
+    def printNonZeroMus(self):
+        print("hit printNonZeroMus")
+        mus = self.tmnt.df[(self.tmnt.df['total_games'] > 0)]
+        print(mus)
+
+        return False
+    
+    def printThreshMus(self):
+        print("hit printThreshMus")
+        basic = mnus.BaseMenu("\nPlease enter threshold integer.")
+        thresh = basic.basicIntLoop()
+        mus = self.tmnt.df[(self.tmnt.df['total_games'] > thresh)]
+        print(mus)
+
+        return False
+
     def getMuObj(self, mu_in=[]):
         #function that gets the matchup series for two given characters
         #if no mu_in pair is given, prompts user
         if mu_in == []:
-            charMenu = chars.SelChar(self.prompt) #set up character list menu
+            charMenu = chars.SelCharMenu(self.prompt[:-1]) #set up character list menu
             #get first character in the matchup
             mu_in.append(charMenu.startPrompt("Please select the first character in the matchup."))
             if mu_in[0] == True:#if recieved quit
@@ -151,27 +139,6 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
         mu = self.makeMuObj(series)
         return mu
 
-    def printNonZeroMus(self):
-        print("hit printNonZeroMus")
-        mus = self.tmnt.df[(self.tmnt.df['total_games'] > 0)]
-        print(mus)
-
-        return False
-    
-    def printThreshMus(self):
-        print("hit printThreshMus")
-        basic = mnus.BaseMenu("\nPlease enter threshold integer.")
-        thresh = basic.basicIntLoop()
-        print(self.tmnt.df['total_games'] > thresh)
-
-        return False
-
-    def printTmnt(self):
-        # print("hit printTmnt")
-        self.tmnt.printDF()
-
-        return False
-
     def exitFunc(self):
         #saves the dataframe before exiting
         print("Hit tmnt exitFunc")
@@ -180,10 +147,14 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
 
     def returnFunc(self):
         #clears all previous settings and saves the dataframe
+        # self.clearTerm()
         print("Hit tmnt returnFunc")
         self.matchup = None
         print("Saving/Updating Dataframe.")
         self.tmnt.saveDF()
+        self.printmenu = True
+
+"""------CLASSES--------------------------------------------------------"""
 
 class Tmnt():
     #class that holds tournament matchup result self.data
@@ -225,7 +196,8 @@ class Tmnt():
     
     def loadDF(self):
         try:
-            self.df = pd.read_csv(f"./TMNTs/{self.name}.tmnt") #read in csv
+            delimiter = ","
+            self.df = pd.read_csv(f"./TMNTs/{self.name}.tmnt", sep=delimiter) #read in csv
             mindex = pd.MultiIndex.from_frame(self.df[['c1','c2']]) #create multiIndex from csv
             dict = { #make dict of rest of columns
                 "c1_wins" : self.df['c1_wins'].astype(int),
@@ -244,15 +216,18 @@ class Tmnt():
     def editDF(self):
         print("hit editDF")
 
+"""------LIST MENUS-----------------------------------------------------"""
+
 class SelTmntMenu(mnus.ListMenu):
     def __init__(self, prompt_in):
-        self.getTmnts()
-        super().__init__(prompt_in)
-
-    def getTmnts(self):
-        self.optionlist = []
-        for root, dirs, files in walk('./'):
+        self.prompt = prompt_in
+        self.optionslist = []
+        self.strflag = False
+        for root, dirs, files in os.walk('./'):
             for filename in files:
                 if filename.endswith('.tmnt'):
-                    self.optionlist.append(filename[:-5])
-        self.optionlist = pd.Series(self.optionlist)
+                    self.optionslist.append(filename[:-5])
+        # self.optionlist.append(np.arange(1,len(self.optionslist)+1))
+        # self.optionslist.append([])
+
+        super().__init__()

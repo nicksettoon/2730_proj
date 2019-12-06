@@ -1,6 +1,6 @@
 c1,c2,c1_wins,c2_wins,total_games
 Banjo,Bayonetta,0,0,0
-Banjo,Bowser,6,50,56
+Banjo,Bowser,0,0,0
 Banjo,Bowser_Jr,0,0,0
 Banjo,Captain_Falcon,0,0,0
 Banjo,Chrom,0,0,0
@@ -77,7 +77,7 @@ Banjo,Yoshi,0,0,0
 Banjo,Young_Link,0,0,0
 Banjo,Zelda,0,0,0
 Banjo,Zero_Suit_Samus,0,0,0
-Bayonetta,Bowser,23,45,68
+Bayonetta,Bowser,0,0,0
 Bayonetta,Bowser_Jr,0,0,0
 Bayonetta,Captain_Falcon,0,0,0
 Bayonetta,Chrom,0,0,0
@@ -131,7 +131,7 @@ Bayonetta,Pikachu,0,0,0
 Bayonetta,Piranha_Plant,0,0,0
 Bayonetta,Pit,0,0,0
 Bayonetta,Pokemon_Trainer,0,0,0
-Bayonetta,ROB,2,3,5
+Bayonetta,ROB,0,0,0
 Bayonetta,Richter,0,0,0
 Bayonetta,Ridley,0,0,0
 Bayonetta,Robin,0,0,0
