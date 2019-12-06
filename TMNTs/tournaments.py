@@ -213,9 +213,6 @@ class Tmnt():
         except FileNotFoundError:
             return False
     
-    def editDF(self):
-        print("hit editDF")
-
 """------LIST MENUS-----------------------------------------------------"""
 
 class SelTmntMenu(mnus.ListMenu):

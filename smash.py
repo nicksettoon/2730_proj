@@ -44,7 +44,7 @@ class StartMenu(mnus.FuncMenu):
             "Rename tournament.":self.renameTmnt,
             "Copy tournament.":self.copyTmnt,
             "Edit global matchups.(dummy func)":self.editGlobalMUs,
-            "Search global matchups.(dummy func)":self.queryGlobalMUs,
+            "Search global matchups.(dummy func)":self.startGlobalMuMenu,
             "index":[],
         }
 
@@ -89,8 +89,8 @@ class StartMenu(mnus.FuncMenu):
         print("Hit editGlobalMUs")
         return True
 
-    def queryGlobalMUs(self):
-        print("Hit queryGlobalMUs")
+    def startGlobalMuMenu(self):
+        print("Hit startGlobalMuMenu")
         return True
 
     def exitFunc(self):

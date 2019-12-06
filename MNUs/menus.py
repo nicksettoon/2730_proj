@@ -31,11 +31,18 @@ class BaseMenu():
 
     def getTermSize(self):
         #gets size of terminal for __init__()
-        import fcntl, termios, struct
-        th, tw, hp, wp = struct.unpack('HHHH',
-            fcntl.ioctl(0, termios.TIOCGWINSZ,
-            struct.pack('HHHH', 0, 0, 0, 0)))
-        return [tw, th]
+        if os.name == 'nt':
+            try:
+                columns, rows = os.get_terminal_size(0)
+            except OSError:
+                columns, rows = os.get_terminal_size(1)
+            return [rows, columns]
+        else:
+            import fcntl, termios, struct
+            th, tw, hp, wp = struct.unpack('HHHH',
+                fcntl.ioctl(0, termios.TIOCGWINSZ,
+                struct.pack('HHHH', 0, 0, 0, 0)))
+            return [tw, th]
 
     def genQuickCodes(self):
         #gets a numpy array of short prefixes of the menu's options to use as index
@@ -134,27 +141,6 @@ class Menu(BaseMenu):
 
         for dictionary in dictarray:
             print(tabulate(dictionary, headers="keys", tablefmt=self.style))
-
-
-        # sz = len(cols) #get length of all options
-        # i = 1
-        # divsize = sz
-        # while(divsize > 10):
-        #     #keep dividing the lenth of options by a bigger number until you get below 10
-        #     divsize = sz//i 
-        #     i += 1 
-        # cols = np.array_split(cols, i) #split cols into i groups 
-
-        # #get avg length of arrays
-        # count = 0
-        # avglen = 0
-        # for array in cols:
-        #     avglen += len(array)
-        #     count += 1
-        # avglen = avglen//count
-        # print(avglen)
-
-        # ndimensionlength = int((5/104)*self.termshape[0])
 
     def getValidMenuOption(self, string_in):
         #input validation loop making sure a given output is in the list of options for the menu instance

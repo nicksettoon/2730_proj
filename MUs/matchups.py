@@ -6,10 +6,6 @@ from MNUs import menus as mnus
 
 """------CLASSES--------------------------------------------------------"""
 
-class Mu():
-    def __init__(self):
-        pass
-
 class MuFuncs():
     #base class for classes requiring matchup object creation and printing
     def makeMuObj(self, series):
@@ -117,18 +113,6 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
     def printMu(self):
         # print("Hit printMu")
         self.printMuObj("Matchup: ")
-
-        return False
-
-    def directEdit(self, c1wins, c2wins):
-        print("hit directEdit")
-        mu = self.matchup
-        mu['row']['c1_wins'] = c1wins
-        mu['row']['c2_wins'] = c2wins
-        mu['row']['total_games'] = mu['row']['c1_wins'] + mu['row']['c2_wins']
-        #print new matchup data
-        self.matchup = self.makeMuObj(mu['row'])
-        self.printMuObj("New Matchup: ")
 
         return False
 
