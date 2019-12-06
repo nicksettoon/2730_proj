@@ -228,6 +228,6 @@ class SelTmntMenu(mnus.ListMenu):
                 if filename.endswith('.tmnt'):
                     self.optionslist.append(filename[:-5])
         # self.optionlist.append(np.arange(1,len(self.optionslist)+1))
-        self.optionslist.append(None)
+        # self.optionslist.append([])
 
         super().__init__()

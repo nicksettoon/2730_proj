@@ -6,20 +6,71 @@ from tabulate import tabulate
 #CUSTOM IMPORTS#
 
 class BaseMenu():
-    #base class for menus 
+    #base class for initial menu setup
     def __init__(self, string_in):
-        self.prompt = string_in + ">"
-        # self.strflag = False #decendant class will set this to true if its indexes are strings
+        self.prompt = string_in + ">" #set prompt
+        #decide if quick codes should be used or not based on terminal height
+        self.termshape = self.getTermSize()
+        if len(self.optionslist) > self.termshape[1]//5: #if so
+            self.menudict["index"] = self.genQuickCodes()
+            self.strflag = True
+            self.style = "grid"
+        else:
+            self.menudict["index"] = []
+            self.strflag = False
+            self.style = "fancy_grid"
+        #set up help menu helpmenu
+        self.helpmenu = {
+            "list":['Reprints menu.','list','ll','ls','l'],
+            "back":['Go to prev menu.','back','bk','b'],
+            "quit":['Saves progress and closes program.','quit','exit','qt', 'q'],
+            "clear":['Clears screen.','clear','cl','c'],
+            "help":['Prints this list.','help','?','man','h'],
+        }
+    
+    def printHelp(self):
+        #prints help menu information
+        print("\nCommands available at and prompt:\n")
+        for cmd, alias in self.helpmenu.items():
+            print(f"{cmd}\t{alias[0]}")
+
+        print("You can use the following commands:\n")
+        for cmd, alias in self.helpmenu.items():
+            print(f"{cmd}: {alias[1:]}")
+
+    def getTermSize(self):
+        #gets size of terminal for __init__()
+        import fcntl, termios, struct
+        th, tw, hp, wp = struct.unpack('HHHH',
+            fcntl.ioctl(0, termios.TIOCGWINSZ,
+            struct.pack('HHHH', 0, 0, 0, 0)))
+        return [tw, th]
+
+    def genQuickCodes(self):
+        #gets a numpy array of short prefixes of the menu's options to use as index
+        quickcodes = []
+        taglist = []
+        for char in self.optionslist:
+            newchar = char.replace("_","")
+            newchar = newchar.replace("-","")
+            newchar = newchar.replace(" ","")
+            tag = newchar[:4].lower()
+            i=1
+            while(tag in taglist):
+                tag = newchar[:4+i].lower()
+                i += 1
+            taglist.append(tag)
+
+        quickcodes = np.array(taglist)
+        return quickcodes
 
     def clearTerm(self):
+        #clears terminal
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def print2DList(self, list_in):
-        print("\t")
-        for i, option in enumerate(list_in):
-            print(f"{i+1}. {option}")
-
     def basicIntLoop(self):
+        #basic loop for ensuring user input is an integer.
+        #for use outside of the complicated getValidMenuOption()
         usrinput = None
         while(usrinput == None):
             try:
@@ -30,55 +81,85 @@ class BaseMenu():
         return usrinput
 
 class Menu(BaseMenu):
-    #base class for basic menu creation and printing
+    #base class for menuframe creation and printing
     def __init__(self):
         #sets up prompt string and creates the menu dataframe
         super().__init__(self.prompt)
-        # self.prompt = self.prompt+">" #sets prompt for this menu
         self.printmenu = True #instance variable to toggle printing of the menu options
         #create menu data frame
         mindex = self.menudict.pop("index", None)
         if mindex == []:
             self.menuframe = pd.DataFrame(self.menudict)
+            self.menuframe.index += 1
         else:
             self.menuframe = pd.DataFrame(self.menudict, index=mindex)
-        if not self.strflag:
-            self.menuframe.index += 1
-            # print(self.menuframe.index.values)
 
         #clear terminal
         self.clearTerm()
 
     def printMenu(self):
+        self.printAnything(self.menuframe)
+        pass
+
+    def printAnything(self, orig_dataframe):
         # prints the current menu
-        if len(self.menuframe.index.values) < 10:
-            print(tabulate(self.menuframe[['options']], showindex=True, tablefmt="psql"))
+        if not self.strflag:
+            print(tabulate(orig_dataframe[['options']], showindex=True, tablefmt=self.style))
             return
-        heads = self.menuframe.index.values # list of all options
-        sz = len(heads) #get length of all options
-        i = 1
-        divsize = sz
-        while(divsize > 10):
-            #keep dividing the lenth of options by a bigger number until you get below 10
-            divsize = sz//i 
-            i += 1 
-        heads = np.array_split(heads, i) #split heads into i groups which should yeild a size <=10
-        # options = [
-        #     "grid",
-        #     "fancy_grid",
-        #     "rst",
-        # ]
-        # for style in options:
-        #     print(f"\n{style}\n")
-        for arr in heads: #print the transpose of the list with the elements in the arr grouping 
-            print(tabulate(self.menuframe[['options']].T[arr], headers=arr, tablefmt=self.style, showindex=False))
-        return
+
+        df = orig_dataframe[['options']].T
+        orig_cols = np.array(df.columns).tolist()
+        cols = orig_cols #make copy for calculations
+
+        maxlen = 0
+        for item in cols:
+            frame = df[[item]]
+            if len(frame.iat[0,0]) > maxlen:
+                maxlen = len(frame.iat[0,0])
+        # for index in cols:
+        dictarray = []
+        index = 0
+        while(index < len(orig_cols)):
+            workspace = self.termshape[0]
+            printdict = {} #set printdict
+            while(workspace > maxlen):
+                try:
+                    frame = df[[cols[index]]]
+                    index += 1
+                    printdict[frame.columns[0]] = [frame.iat[0,0]]
+                    workspace -= (len(frame.iat[0,0])+3)
+                except:
+                    break
+            dictarray.append(printdict)
+
+        for dictionary in dictarray:
+            print(tabulate(dictionary, headers="keys", tablefmt=self.style))
+
+
+        # sz = len(cols) #get length of all options
+        # i = 1
+        # divsize = sz
+        # while(divsize > 10):
+        #     #keep dividing the lenth of options by a bigger number until you get below 10
+        #     divsize = sz//i 
+        #     i += 1 
+        # cols = np.array_split(cols, i) #split cols into i groups 
+
+        # #get avg length of arrays
+        # count = 0
+        # avglen = 0
+        # for array in cols:
+        #     avglen += len(array)
+        #     count += 1
+        # avglen = avglen//count
+        # print(avglen)
+
+        # ndimensionlength = int((5/104)*self.termshape[0])
 
     def getValidMenuOption(self, string_in):
         #input validation loop making sure a given output is in the list of options for the menu instance
         #runs until user picks an option, then return
         output = None
-        helpmenu = "\nlist\tprints menu\nback\tgoes back one menu\nquit\tquits program\nclear\tclears screen\nhelp\tprints this list" 
         endstring = string_in + "\nType help for a list of commands."
 
         while(output == None):
@@ -88,22 +169,22 @@ class Menu(BaseMenu):
             print(endstring)
             endstring = string_in
             inpt = input(self.prompt)
-            
-            if inpt == "list":
+
+            if inpt in self.helpmenu["list"][1:]:
                 self.printmenu = True
                 endstring = string_in 
                 output = None
-            elif inpt == "help":
-                endstring = helpmenu
+            elif inpt in self.helpmenu["help"][1:]:
+                self.printHelp()
                 output = None
-            elif inpt == "clear":
+            elif inpt in self.helpmenu["clear"][1:]:
                 self.clearTerm()
                 endstring = string_in
                 output = None
-            elif inpt == "quit":
+            elif inpt in self.helpmenu["quit"][1:]:
                 output = True
                 break
-            elif inpt == "back":
+            elif inpt in self.helpmenu["back"][1:]:
                 output = False
                 break
             else:
@@ -139,13 +220,11 @@ class ListMenu(Menu):
     def __init__(self):
         self.menutype = "options" 
         # build dataframe dictionary
-        self.style = "rst"
         self.menudict = {#build new dict in it's shoes
-            "index":self.optionslist.pop(-1),
             "options":self.optionslist,
+            "index":[],
         }
 
-        #call super i.e Menu() class to actually make self.menuframe
         super().__init__()
 
     def startPrompt(self, end_string):
@@ -174,7 +253,6 @@ class FuncMenu(Menu):
         self.menutype = "functions" 
         self.optionslist = []
         self.functionslist = []
-        self.style = "github"
         # build dataframe dictionary
         for key, value in self.menudict.items():
             #cycle through all items in dict that decendant set up
@@ -186,7 +264,7 @@ class FuncMenu(Menu):
                 break
             self.optionslist.append(key)
             self.functionslist.append(value)
-        #call super i.e Menu() class to actually make self.menuframe
+
         super().__init__()
     
     def exitFunc(self):

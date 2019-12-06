@@ -138,7 +138,7 @@ class EditMuMenu(mnus.FuncMenu, MuFuncs):
         #get user input
         basic = mnus.BaseMenu(f"Set {mu['df'].columns[0]} to")
         c1wins = basic.basicIntLoop()
-        basic.prompt = f"Set {mu['df'].columns[1]} to"
+        basic.prompt = f"Set {mu['df'].columns[1]} to>"
         c2wins = basic.basicIntLoop()
         #set values to user input
         mu['row']['c1_wins'] = c1wins

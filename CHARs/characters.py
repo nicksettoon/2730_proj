@@ -19,28 +19,28 @@ class SelCharMenu(mnus.ListMenu):
 
         self.optionslist = muloader.characters.ravel().tolist()
         # self.optionslist = np.concatenate(self.optionslist, self.genCharCodes())
-        self.optionslist.append(self.genCharCodes())
-        print(self.optionslist)
+        # self.optionslist.append(self.genCharCodes())
+        # print(self.optionslist)
         super().__init__()
     
-    def genCharCodes(self):
-        charcodes = []
-        taglist = []
-        for char in self.optionslist:
-            newchar = char.replace("_","")
-            newchar = newchar.replace("-","")
-            tag = newchar[:4].lower()
-            taglist.append(tag)
-        charcodes = np.array(taglist)
-        # for i, tag, char in zip(np.arange(len(charcodes)), charcodes, clist.optionlist):
-        #     print(f"{i}.\t{tag}\t{char}")
-        charcodes[3] = "bowj"
-        charcodes[9] = "drkp"
-        charcodes[10] = "drks"
-        charcodes[28] = "kddd"
-        charcodes[33] = "rage"
+    # def genCharCodes(self):
+    #     charcodes = []
+    #     taglist = []
+    #     for char in self.optionslist:
+    #         newchar = char.replace("_","")
+    #         newchar = newchar.replace("-","")
+    #         tag = newchar[:4].lower()
+    #         taglist.append(tag)
+    #     charcodes = np.array(taglist)
+    #     # for i, tag, char in zip(np.arange(len(charcodes)), charcodes, clist.optionlist):
+    #     #     print(f"{i}.\t{tag}\t{char}")
+    #     charcodes[3] = "bowj"
+    #     charcodes[9] = "drkp"
+    #     charcodes[10] = "drks"
+    #     charcodes[28] = "kddd"
+    #     charcodes[33] = "rage"
 
-        return charcodes
+    #     return charcodes
 
         # optionlist = pd.Series(self.optionlist)
         # optionlist.index = charcodes
