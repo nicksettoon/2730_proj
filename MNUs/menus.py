@@ -41,6 +41,7 @@ class BaseMenu():
             csbi = create_string_buffer(22)
             res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
 
+            # sizex, sizey = 0,0
             if res:
                 import struct
                 (bufx, bufy, curx, cury, wattr,
