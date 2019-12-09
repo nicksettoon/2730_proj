@@ -1,5 +1,6 @@
 #EXTERNAL IMPORTS#
 import numpy as np
+import pandas as pd
 from tabulate import tabulate
 #CUSTOM IMPORTS#
 from MNUs import menus as mnus
@@ -32,8 +33,6 @@ class MuStats():
     #basic class for holding matchup creation methods and arrays
     def __init__(self, file_name):
         self.filename = file_name
-        # self.loadStats(file_name)
-        # self.makeMuArray()
 
     def loadMuStats(self):
         #takes in str of the name of a csv file with character stats in it
@@ -46,6 +45,43 @@ class MuStats():
         self.characters = np.expand_dims(self.characters, axis=1)
         #get stats matrix
         self.stats = self.data[1:,1:].copy().astype(float)
+        # print(f"Matchup shape: {mchups.shape}")
+        # print(f"Character shape: {chrs.shape}")
+        # print(f"Headers shape: {heads.shape}")
+        # print(f"Stats Shape: {stats.shape}")
+
+    def getMuStats(self):
+        #uses the normalization formula to establish a single line relationship
+        #between the two fighters' stats for each unique matchup
+        mchups = np.array(self.muarray)
+        headers = pd.Series(self.headers[1:])
+        chrseries = pd.Series(self.characters[:,0])
+
+        size = len(mchups)
+        zeros = np.zeros((size,11))
+
+        # create multiIndex from array of tuples
+        mindex = pd.MultiIndex.from_tuples(self.muarray.copy(), names=['c1','c2'])
+        # make dataframe with zeroes for columns and the multiIndex for the indexes
+        matchupdf = pd.DataFrame(zeros.astype(float),columns=headers[:], index=mindex)
+
+        for mu in mchups:
+            chr1 = chrseries[chrseries == mu[0]].index[0]
+            chr2 = chrseries[chrseries == mu[1]].index[0]
+            chr1stats = self.stats[chr1]
+            chr2stats = self.stats[chr2]
+            murow = matchupdf.xs((mu[0],mu[1]))
+            for ch1, ch2, i  in zip(chr1stats, chr2stats, range(0,12)):
+                sample = self.statFunc(ch1, ch2)
+                print(f"{mu[0]} vs {mu[1]}, {headers[i]}: {sample}")
+                murow[i] = sample
+
+        print(matchupdf)
+
+    def statFunc(self, chr1_stat, chr2_stat):
+        stat = (chr1_stat-chr2_stat)/(chr1_stat+chr2_stat)*100
+
+        return stat
 
     def genMuArray(self):
         #takes in np array containing list of characters and returns new array with all viable unique 1v1 matchups for those characters

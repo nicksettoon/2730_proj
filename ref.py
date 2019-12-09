@@ -1,18 +1,3 @@
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
-from IPython import get_ipython
-
-# Homework 2
-# ---
-# **Due Nov. 26 (Tue) by end of the day.**
-# 
-# Do all your work on this notebook. Submit your homework by uploading the notebook file to moodle. Your submission notebook should contain:
-# 
-# - Code
-# - Output from running your code (printouts)
-# - Answer to any questions or any comments (type in a markdown cell)
-
-get_ipython().run_line_magic('pylab', 'inline')
 import warnings
 warnings.filterwarnings('ignore')
 from sklearn.datasets import load_files
@@ -32,6 +17,7 @@ print(dataset.keys())
 print(len(dataset.target[:]))
 
 
+from sklearn.model_selection import train_test_split
 docs_train, docs_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25, random_state=123)
 # print(size(y_train))
 # print(size(y_test))

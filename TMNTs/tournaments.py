@@ -49,7 +49,7 @@ class MakeTmntMenu(mnus.FuncMenu):
 
 class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
     #class for menu of options related to a specific Tmnt
-    def __init__(self, tmnt_name):
+    def __init__(self, tmnt_name, META):
         self.prompt = tmnt_name 
         self.strflag = False
         self.menudict = {
@@ -61,8 +61,11 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
             "index":[],
         }
         #make and load tournament 
-        self.tmnt = Tmnt(tmnt_name)
-        self.tmnt.loadDF()
+        if META == None:
+            self.tmnt = Tmnt(tmnt_name)
+            self.tmnt.loadDF()
+        else:
+            self.tmnt = META
         super().__init__() #make menu
     
     def selectMu(self):
@@ -90,6 +93,10 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
     def printNonZeroMus(self):
         #print("hit printNonZeroMus")
         mus = self.tmnt.df[(self.tmnt.df['total_games'] > 0)]
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.width', None)
+        pd.set_option('display.max_colwidth', -1)
         print(mus)
 
         return False
@@ -99,6 +106,10 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
         basic = mnus.BaseMenu("\nPlease enter threshold integer.")
         thresh = basic.basicIntLoop()
         mus = self.tmnt.df[(self.tmnt.df['total_games'] > thresh)]
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.width', None)
+        pd.set_option('display.max_colwidth', -1)
         print(mus)
 
         return False
@@ -194,6 +205,31 @@ class Tmnt():
         self.df.dropna()
         export_csv = self.df.to_csv(f"./TMNTs/{self.name}.tmnt", index=True) #write to csv
     
+    def sumAllTmnts(self, tdf_list):
+        # tdf_list = self.loadAllTmnts()
+        self.df = tdf_list[0].copy()
+        for tmntdf in tdf_list[1:]:
+            print("Adding dataframes together.")
+            self.df += tmntdf
+
+    def loadAllTmnts(self):
+        tmntdflist = []
+        tmntmenu = SelTmntMenu("Loading TMNT Files.")
+        tmntlist = tmntmenu.menudict["options"]
+        tempname = self.name
+        for tmntfile in tmntlist:
+            if (tmntfile == "META"):
+                print("Found META.tmnt recalculating it instead of loading it.")
+                continue
+            self.name = f"{tmntfile}"
+            print(f"Loading {self.name}")
+            self.loadDF()
+            tmntdflist.append(self.df.copy()) 
+            print(f"Adding {self.name} to array.")
+        self.name = tempname
+
+        return tmntdflist
+
     def loadDF(self):
         try:
             delimiter = ","
@@ -211,6 +247,7 @@ class Tmnt():
             # print(f"Found csv for {self.name}.")
             return True
         except FileNotFoundError:
+            print("The tournament file you were looking for wasn't found file not found.")
             return False
     
 """------LIST MENUS-----------------------------------------------------"""
@@ -220,7 +257,8 @@ class SelTmntMenu(mnus.ListMenu):
         self.prompt = prompt_in
         self.optionslist = []
         self.strflag = False
-        for root, dirs, files in os.walk('./'):
+        print("Loading TMNT files.")
+        for root, dirs, files in os.walk('./TMNTs/'):
             for filename in files:
                 if filename.endswith('.tmnt'):
                     self.optionslist.append(filename[:-5])
@@ -228,3 +266,27 @@ class SelTmntMenu(mnus.ListMenu):
         # self.optionslist.append([])
 
         super().__init__()
+
+        # count = 0
+        # try:
+        #     for root, dirs, files in os.walk('./TMNTs/'):
+        #         for filename in files:
+        #             if filename.endswith('.tmnt'):
+        #                 # print(filename)
+        #                 tmntlist.append(filename)
+        #                 # count += 1
+        # except FileNotFoundError:
+        #     print("idk how you got here. But I'm impressed.")
+
+        # delimiter = ','
+        #for each tmnt file, import into a dataframe and ad it to a list.
+
+            # df = pd.read_csv(f"./TMNTs/{tmntfile}", sep=delimiter) #read in csv
+            # mindex = pd.MultiIndex.from_frame(df[['c1','c2']]) #create multiIndex from csv
+            # dict = { #make dict of rest of column
+            #     "c1_wins" : df['c1_wins'].astype(int),
+            #     "c2_wins" : df['c2_wins'].astype(int) }
+            # df = pd.DataFrame(dict) #create new dataframe
+            # df.index = mindex #add indexes after
+            # df['total_games'] = df['c1_wins'] + df['c2_wins'] #recalc total_games col
+            # tmntdflist.append(df) # append dataframe to list of data frames
