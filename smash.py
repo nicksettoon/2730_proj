@@ -8,30 +8,18 @@ import os
 from MNUs import menus as mnus
 from MUs import matchups as mus
 from TMNTs import tournaments as tmnt
+from CHARs import characters as chars
+from sklearn.model_selection import train_test_split
 
 def main():
     start = StartMenu()
     start.startPrompt("Please input a number.")
 
-    # MATCHUP EDIT TESTING #
-    # editTmnt = tmnt.EditTmntMenu("test")
-    # editMu = mus.EditMuMenu(editTmnt.getMuObj(['Banjo', 'Bayonetta']))
-    # end = editMu.test()
-    # editTmnt.printTmnt()
-    # end = editMu.test()
-    # editTmnt.printTmnt()
-
-    #LOOP TESTING#
-    # end = False
-    # while(end == False):
-
-    #MAKE TOURNAMENT TESTING#
-    # makeTmnt = MakeTournament()
-    # makeTmnt.startPrompt("")
-
+    # print(df.shape)
     print("Closing Main")
+    # training data split
+    # docs_train, docs_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25, random_state=123)
 
-        
 class StartMenu(mnus.FuncMenu):
     #Class for start menu options
     def __init__(self):
@@ -43,25 +31,29 @@ class StartMenu(mnus.FuncMenu):
             "Make a tournament.":self.startMakeTmntMenu,
             "Rename tournament.":self.renameTmnt,
             "Copy tournament.":self.copyTmnt,
-            "Edit global matchups.(dummy func)":self.editGlobalMUs,
-            "Search global matchups.(dummy func)":self.startGlobalMuMenu,
+            "Search global matchups.":self.startGlobalMuMenu,
+            # "Edit global matchups.(dummy func)":self.editGlobalMUs,
             "index":[],
         }
 
         super().__init__()
 
-    def startEditTmntMenu(self):
+    def startEditTmntMenu(self, tmnt_name, META):
         # #print("hit startEditTmntMenu")
-        tmntMenu = tmnt.SelTmntMenu(self.prompt) #create tournament selection prompt
-        selection = tmntMenu.startPrompt("Please select a tournament.")# get the user's selection
-
-        if selection == True:
-            return True
-        elif selection == False:
-            return False
-        else:
-            editTmnt = tmnt.EditTmntMenu(selection) #make menu for tournament
+        if META != None:
+            editTmnt = tmnt.EditTmntMenu(tmnt_name, META) #make menu for tournament
             return editTmnt.startPrompt("Please input a number.")
+        else:
+            tmntMenu = tmnt.SelTmntMenu(self.prompt) #create tournament selection prompt
+            selection = tmntMenu.startPrompt("Please select a tournament.")# get the user's selection
+
+            if selection == True:
+                return True
+            elif selection == False:
+                return False
+            else:
+                editTmnt = tmnt.EditTmntMenu(selection, None) #make menu for tournament
+                return editTmnt.startPrompt("Please input a number.")
 
     def startMakeTmntMenu(self):
         makeTmnt = tmnt.MakeTmntMenu()
@@ -91,6 +83,13 @@ class StartMenu(mnus.FuncMenu):
 
     def startGlobalMuMenu(self):
         #print("hit startGlobalMuMenu")
+        print("Recomputing META.tmnt")
+        meta = tmnt.Tmnt("META")
+        tmnts = meta.loadAllTmnts()
+        meta.sumAllTmnts(tmnts)
+        meta.saveDF()
+
+        self.startEditTmntMenu("META", meta);
         return True
 
     def exitFunc(self):
@@ -101,6 +100,7 @@ class StartMenu(mnus.FuncMenu):
         # self.clearTerm()
         #print("hit startmenu returnFunc")
         self.printMenu()
+
 
 if __name__ == "__main__": main()
 else: print("What you doin' willis.")

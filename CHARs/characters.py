@@ -5,9 +5,6 @@ import pandas as pd
 from MUs import matchups as mus
 from MNUs import menus as mnus
 
-def normalizeStatFunc(stat_challenger, stat_opponent):
-    stat = (stat_challenger-stat_opponent)/(stat_challenger+stat_opponent)
-    return stat
 
 class SelCharMenu(mnus.ListMenu):
     #class for listing and selecting characters

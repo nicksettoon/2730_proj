@@ -4,6 +4,7 @@ import numpy as np
 import os
 from tabulate import tabulate
 #CUSTOM IMPORTS#
+# from TMNTs import tournaments as tmnt
 
 class BaseMenu():
     #base class for initial menu setup
