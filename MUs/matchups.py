@@ -63,20 +63,20 @@ class MuStats():
         # create multiIndex from array of tuples
         mindex = pd.MultiIndex.from_tuples(self.muarray.copy(), names=['c1','c2'])
         # make dataframe with zeroes for columns and the multiIndex for the indexes
-        matchupdf = pd.DataFrame(zeros.astype(float),columns=headers[:], index=mindex)
+        self.MUdf = pd.DataFrame(zeros.astype(float),columns=headers[:], index=mindex)
 
         for mu in mchups:
             chr1 = chrseries[chrseries == mu[0]].index[0]
             chr2 = chrseries[chrseries == mu[1]].index[0]
             chr1stats = self.stats[chr1]
             chr2stats = self.stats[chr2]
-            murow = matchupdf.xs((mu[0],mu[1]))
+            murow = self.MUdf.xs((mu[0],mu[1]))
             for ch1, ch2, i  in zip(chr1stats, chr2stats, range(0,12)):
                 sample = self.statFunc(ch1, ch2)
-                print(f"{mu[0]} vs {mu[1]}, {headers[i]}: {sample}")
+                # print(f"{mu[0]} vs {mu[1]}, {headers[i]}: {sample}")
                 murow[i] = sample
 
-        print(matchupdf)
+        # print(self.MUdf)
 
     def statFunc(self, chr1_stat, chr2_stat):
         stat = (chr1_stat-chr2_stat)/(chr1_stat+chr2_stat)*100

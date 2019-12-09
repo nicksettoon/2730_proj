@@ -209,7 +209,7 @@ class Tmnt():
         # tdf_list = self.loadAllTmnts()
         self.df = tdf_list[0].copy()
         for tmntdf in tdf_list[1:]:
-            print("Adding dataframes together.")
+            # print("Adding dataframes together.")
             self.df += tmntdf
 
     def loadAllTmnts(self):
@@ -219,13 +219,13 @@ class Tmnt():
         tempname = self.name
         for tmntfile in tmntlist:
             if (tmntfile == "META"):
-                print("Found META.tmnt recalculating it instead of loading it.")
+                # print("Found META.tmnt recalculating it instead of loading it.")
                 continue
             self.name = f"{tmntfile}"
-            print(f"Loading {self.name}")
+            # print(f"Loading {self.name}")
             self.loadDF()
             tmntdflist.append(self.df.copy()) 
-            print(f"Adding {self.name} to array.")
+            # print(f"Adding {self.name} to array.")
         self.name = tempname
 
         return tmntdflist
