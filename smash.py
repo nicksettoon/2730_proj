@@ -10,16 +10,39 @@ from MUs import matchups as mus
 from TMNTs import tournaments as tmnt
 from CHARs import characters as chars
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score 
+from sklearn.svm import SVC
 
 def main():
     start = StartMenu()
     start.startPrompt("Please input a number.")
 
-    # print(df.shape)
-    print("Closing Main")
-    # training data split
-    # docs_train, docs_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25, random_state=123)
+    meta = tmnt.Tmnt("META")
+    tdflist = meta.loadAllTmnts()
+    meta.sumAllTmnts(tdflist)
+    
+    muload = mus.MuStats("./CHARs/char_stats.csv")
+    muload.loadMuStats()
+    muload.genMuArray()
+    muload.getMuStats()
 
+    matchups = muload.MUdf.to_csv("./MUs/MUstats.csv")
+    results = meta.df.to_csv("./MUs/MUresults.csv")
+
+    matchups = muload.MUdf.to_numpy()
+    results = meta.df.to_numpy()
+    print(matchups.shape)
+    print(results.shape)
+    dataset = np.concatenate((matchups, results), 1)
+    print(dataset.shape)
+
+    mutrain, mutest, ytrain, ytest = train_test_split(dataset, results[:,:2], test_size=0.25, random_state=123)
+    # did not get further than this. data entry took all the time.
+    
+    print("Closing Main")
+   
 class StartMenu(mnus.FuncMenu):
     #Class for start menu options
     def __init__(self):
