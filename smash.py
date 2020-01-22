@@ -9,36 +9,36 @@ from MNUs import menus as mnus
 from MUs import matchups as mus
 from TMNTs import tournaments as tmnt
 from CHARs import characters as chars
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score 
-from sklearn.svm import SVC
+# from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import GridSearchCV
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import accuracy_score, f1_score 
+# from sklearn.svm import SVC
 
 def main():
     start = StartMenu()
     start.startPrompt("Please input a number.")
 
-    meta = tmnt.Tmnt("META")
-    tdflist = meta.loadAllTmnts()
-    meta.sumAllTmnts(tdflist)
+    # meta = tmnt.Tmnt("META")
+    # tdflist = meta.loadAllTmnts()
+    # meta.sumAllTmnts(tdflist)
     
-    muload = mus.MuStats("./CHARs/char_stats.csv")
-    muload.loadMuStats()
-    muload.genMuArray()
-    muload.getMuStats()
+    # muload = mus.MuStats("./CHARs/char_stats.csv")
+    # muload.loadMuStats()
+    # muload.genMuArray()
+    # muload.getMuStats()
 
-    matchups = muload.MUdf.to_csv("./MUs/MUstats.csv")
-    results = meta.df.to_csv("./MUs/MUresults.csv")
+    # matchups = muload.MUdf.to_csv("./MUs/MUstats.csv")
+    # results = meta.df.to_csv("./MUs/MUresults.csv")
 
-    matchups = muload.MUdf.to_numpy()
-    results = meta.df.to_numpy()
-    print(matchups.shape)
-    print(results.shape)
-    dataset = np.concatenate((matchups, results), 1)
-    print(dataset.shape)
+    # matchups = muload.MUdf.to_numpy()
+    # results = meta.df.to_numpy()
+    # print(matchups.shape)
+    # print(results.shape)
+    # dataset = np.concatenate((matchups, results), 1)
+    # print(dataset.shape)
 
-    mutrain, mutest, ytrain, ytest = train_test_split(dataset, results[:,:2], test_size=0.25, random_state=123)
+    # mutrain, mutest, ytrain, ytest = train_test_split(dataset, results[:,:2], test_size=0.25, random_state=123)
     # did not get further than this. data entry took all the time.
     
     print("Closing Main")
@@ -48,6 +48,7 @@ class StartMenu(mnus.FuncMenu):
     def __init__(self):
         print("Welcome to the Smash Ultimate Tournament Data Builder!")
         self.prompt = "SHOW ME YOUR MUs"
+        self.globaltmntdf = None
         self.strflag = False
         self.menudict = {
             "Open a tournament.":self.startEditTmntMenu,
@@ -58,13 +59,12 @@ class StartMenu(mnus.FuncMenu):
             # "Edit global matchups.(dummy func)":self.editGlobalMUs,
             "index":[],
         }
-
         super().__init__()
 
-    def startEditTmntMenu(self, tmnt_name, META):
-        # #print("hit startEditTmntMenu")
-        if META != None:
-            editTmnt = tmnt.EditTmntMenu(tmnt_name, META) #make menu for tournament
+    def startEditTmntMenu(self):
+        print("hit startEditTmntMenu")
+        if self.globaltmntdf != None:
+            editTmnt = tmnt.EditTmntMenu("GLOBAL_MUS", self.globaltmntdf) #make menu for tournament
             return editTmnt.startPrompt("Please input a number.")
         else:
             tmntMenu = tmnt.SelTmntMenu(self.prompt) #create tournament selection prompt
@@ -111,8 +111,9 @@ class StartMenu(mnus.FuncMenu):
         tmnts = meta.loadAllTmnts()
         meta.sumAllTmnts(tmnts)
         meta.saveDF()
+        self.globaltmntdf = meta
 
-        self.startEditTmntMenu("META", meta);
+        self.startEditTmntMenu();
         return True
 
     def exitFunc(self):

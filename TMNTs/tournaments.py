@@ -49,7 +49,7 @@ class MakeTmntMenu(mnus.FuncMenu):
 
 class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
     #class for menu of options related to a specific Tmnt
-    def __init__(self, tmnt_name, META):
+    def __init__(self, tmnt_name, global_tmnt_df):
         self.prompt = tmnt_name 
         self.strflag = False
         self.menudict = {
@@ -61,11 +61,12 @@ class EditTmntMenu(mnus.FuncMenu, mus.MuFuncs):
             "index":[],
         }
         #make and load tournament 
-        if META == None:
+        if global_tmnt_df == None:
             self.tmnt = Tmnt(tmnt_name)
             self.tmnt.loadDF()
         else:
-            self.tmnt = META
+            self.tmnt = global_tmnt_df
+
         super().__init__() #make menu
     
     def selectMu(self):
